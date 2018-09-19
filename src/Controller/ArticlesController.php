@@ -59,4 +59,29 @@ class ArticlesController extends AppController
         // Set article for use inside the template.
         $this->set('article', $article);
     }
+
+    // Add the ability for
+    public function edit($slug)
+    {
+        /**
+         * This action first ensures that the user has tried to access an existing record. If they haven’t passed in
+         * an $slug parameter, or the article does not exist, a NotFoundException will be thrown, and the CakePHP
+         * ErrorHandler will render the appropriate error page.
+
+            Next the action checks whether the request is either a POST or a PUT request. If it is, then we use the
+         * POST/PUT data to update our article entity by using the patchEntity() method. Finally, we call save() set
+         * the appropriate flash message and either redirect or display validation errors.
+         */
+        $article = $this->Articles->findBySlug($slug)->firstOrFail();
+        if ($this->request->is(['post', 'put'])) {
+            $this->Articles->patchEntity($article, $this->request->getData());
+            if ($this->Articles->save($article)) {
+                $this->Flash->success(__('Your article has been updated.'));
+                return $this->redirect(['action' => 'index']);
+            }
+            $this->Flash->error(__('Unable to update your article.'));
+        }
+
+        $this->set('article', $article);
+    }
 }
