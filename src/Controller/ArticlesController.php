@@ -60,7 +60,7 @@ class ArticlesController extends AppController
         $this->set('article', $article);
     }
 
-    // Add the ability for
+    // Add the ability to Edit Articles.
     public function edit($slug)
     {
         /**
@@ -83,5 +83,18 @@ class ArticlesController extends AppController
         }
 
         $this->set('article', $article);
+    }
+
+    // Add ability to delete Articles.
+    public function delete($slug)
+    {
+        // Validates that only post or delete methods can use this function.
+        $this->request->allowMethod(['post', 'delete']);
+
+        $article = $this->Articles->findBySlug($slug)->firstOrFail();
+        if ($this->Articles->delete($article)) {
+            $this->Flash->success(__('The {0} article has been deleted.', $article->title));
+            return $this->redirect(['action' => 'index']);
+        }
     }
 }
