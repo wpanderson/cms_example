@@ -22,7 +22,7 @@
         </td>
         <td>
             <!-- Adds link for Edit action. Passes article object. -->
-            <?= $this->Html->link('Edit', ['action' => 'edit', $article->slug]) ?> | 
+            <?= $this->Html->link('Edit', ['action' => 'edit', $article->slug]) ?> |
             <!-- Adds delete button to each article. Example of  -->
             <?= $this->Form->postLink(
                 'Delete',
