@@ -9,6 +9,8 @@
 
 namespace App\Controller;
 
+use App\Controller\AppController;
+
 class ArticlesController extends AppController
 {
 
@@ -42,7 +44,7 @@ class ArticlesController extends AppController
         $article = $this->Articles->newEntity();
         if ($this->request->is('post')) {
             // Debug to print stuff
-            debug($this->request->getData());
+//            debug($this->request->getData());
             $article = $this->Articles->patchEntity($article, $this->request->getData());
 
             // Hardcoding user_id is temporary and will be changed with authenticator
@@ -53,9 +55,20 @@ class ArticlesController extends AppController
                 $this->Flash->success(__('Your article has been saved.'));
                 return $this->redirect(['action' => 'index']);
             }
-            $this->Flash->error(__('Unable to add your article. :('));
+            $this->Flash->error(__('Unable to add your article. :( \n Article
+             data: {0}', $article));
+            // For some reason if statement above was failing. So I took it out of it.
+//            $this->Articles->save($article);
+//            return $this->redirect(['action' => 'index']);
 
         }
+        // Get a list of available tags.
+        $tags = $this->Articles->Tags->find('list');
+
+        // Set tags to the view context.
+        $this->set('tags', $tags);
+
+
         // Set article for use inside the template.
         $this->set('article', $article);
     }
@@ -72,7 +85,10 @@ class ArticlesController extends AppController
          * POST/PUT data to update our article entity by using the patchEntity() method. Finally, we call save() set
          * the appropriate flash message and either redirect or display validation errors.
          */
-        $article = $this->Articles->findBySlug($slug)->firstOrFail();
+
+        $article = $this->Articles->findBySlug($slug)
+            ->contain('Tags') // Loads associated Tags
+            ->firstOrFail();
         if ($this->request->is(['post', 'put'])) {
             $this->Articles->patchEntity($article, $this->request->getData());
             if ($this->Articles->save($article)) {
@@ -82,6 +98,13 @@ class ArticlesController extends AppController
             $this->Flash->error(__('Unable to update your article.'));
         }
 
+        // Get a list of tags.
+        $tags = $this->Articles->Tags->find('list');
+
+        // Set tags to the view context so they are visible to the user.
+        $this->set('tags', $tags);
+
+        // Set article
         $this->set('article', $article);
     }
 
@@ -96,5 +119,23 @@ class ArticlesController extends AppController
             $this->Flash->success(__('The {0} article has been deleted.', $article->title));
             return $this->redirect(['action' => 'index']);
         }
+    }
+
+    // Controller for making tags available to the view.
+    public function tags()
+    {
+        // The 'pass' key is provided by CakePHP and contains all
+        // the passed URL path segments in the request.
+        $tags = $this->request->getParam('pass');
+
+        // Use the ArticlesTable to find tagged articles
+        $articles = $this->Articles->find('tagged',
+            ['tags' => $tags]);
+
+        // Pass variables into the view template context.
+        $this->set([
+                'articles' => $articles,
+                'tags' => $tags
+            ]);
     }
 }

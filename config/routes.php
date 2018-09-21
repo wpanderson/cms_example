@@ -46,34 +46,68 @@ use Cake\Routing\Route\DashedRoute;
  */
 Router::defaultRouteClass(DashedRoute::class);
 
-Router::scope('/', function (RouteBuilder $routes) {
-    /**
-     * Here, we are connecting '/' (base path) to a controller called 'Pages',
-     * its action called 'display', and we pass a param to select the view file
-     * to use (in this case, src/Template/Pages/home.ctp)...
-     */
-    $routes->connect('/', ['controller' => 'Pages', 'action' => 'display', 'home']);
 
-    /**
-     * ...and connect the rest of 'Pages' controller's URLs.
-     */
-    $routes->connect('/pages/*', ['controller' => 'Pages', 'action' => 'display']);
+//TODO: Figure out how to redirect users on /index to the articles page.
+//Index route. Redirect to open articles.
+//Router::scope('/', function (RouteBuilder $routes) {
+//   $routes->connect('/', ['controller' => 'Pages', 'action' => 'display', 'index']);
+//   $routes->connect('/articles/*', ['controller' => 'Pages', 'action' => 'display']);
+//
+//});
 
-    /**
-     * Connect catchall routes for all controllers.
-     *
-     * Using the argument `DashedRoute`, the `fallbacks` method is a shortcut for
-     *    `$routes->connect('/:controller', ['action' => 'index'], ['routeClass' => 'DashedRoute']);`
-     *    `$routes->connect('/:controller/:action/*', [], ['routeClass' => 'DashedRoute']);`
-     *
-     * Any route class can be used with this method, such as:
-     * - DashedRoute
-     * - InflectedRoute
-     * - Route
-     * - Or your own route class
-     *
-     * You can remove these routes once you've connected the
-     * routes you want in your application.
-     */
-    $routes->fallbacks(DashedRoute::class);
+// New route we're adding for our tagged action.
+// The trailing '*' tells CakePHP that this action has
+// passed parameters. (i.e. Regex)
+Router::scope(
+    '/articles',
+    ['controler' => 'Articles'],
+    function ($routes) {
+        $routes->connect('/tagged/*', ['action' => 'tags']);
+    }
+);
+
+Router::scope('/', function ($routes) {
+    // Connect the default home and /pages/* routes.
+    $routes->connect('/', [
+        'controller' => 'Pages',
+        'action' => 'display'
+    ]);
+    // Connect the conventions based default routes.
+    $routes->fallbacks();
 });
+
+// Deprecated call. No longer needed in newer version os CakePHP.
+//Plugin::routes();
+
+//
+//Router::scope('/', function (RouteBuilder $routes) {
+//    /**
+//     * Here, we are connecting '/' (base path) to a controller called 'Pages',
+//     * its action called 'display', and we pass a param to select the view file
+//     * to use (in this case, src/Template/Pages/home.ctp)...
+//     */
+//    $routes->connect('/', ['controller' => 'Pages', 'action' => 'display', 'home']);
+//
+//    /**
+//     * ...and connect the rest of 'Pages' controller's URLs.
+//     */
+//    $routes->connect('/pages/*', ['controller' => 'Pages', 'action' => 'display']);
+//
+//    /**
+//     * Connect catchall routes for all controllers.
+//     *
+//     * Using the argument `DashedRoute`, the `fallbacks` method is a shortcut for
+//     *    `$routes->connect('/:controller', ['action' => 'index'], ['routeClass' => 'DashedRoute']);`
+//     *    `$routes->connect('/:controller/:action/*', [], ['routeClass' => 'DashedRoute']);`
+//     *
+//     * Any route class can be used with this method, such as:
+//     * - DashedRoute
+//     * - InflectedRoute
+//     * - Route
+//     * - Or your own route class
+//     *
+//     * You can remove these routes once you've connected the
+//     * routes you want in your application.
+//     */
+//    $routes->fallbacks(DashedRoute::class);
+//});
